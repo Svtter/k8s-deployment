@@ -1,32 +1,22 @@
 """change hostname of given hostname"""
 
+import json
+
 import fabric
 
-
-config = fabric.Config(
-  overrides={
-    "sudo": {
-      "password": "1223",
-    }
-  }
-)
-
-
-def get_conn(ip: str) -> fabric.Connection:
-  conn = fabric.Connection(ip, user="svtter", config=config)
-  return conn
+from conf import get_conn, master_ip, nodes_ip
 
 
 def set_hostnames():
-  master_ip = ["192.168.4.198", "192.168.4.222", "192.168.4.177"]
-  nodes_ip = ["192.168.4.103", "192.168.4.138", "192.168.4.199"]
-
   # set master hostname
   cnt = 1
+  res = []
+
   for ip in master_ip:
     hostname = f"master-{cnt}"
     change_hostname(get_conn(ip), hostname)
     cnt += 1
+    res.append(f"{hostname} {ip}")
 
   # set node hostname
   cnt = 1
@@ -34,6 +24,11 @@ def set_hostnames():
     hostname = f"node-{cnt}"
     change_hostname(get_conn(ip), hostname)
     cnt += 1
+    res.append(f"{hostname} {ip}")
+
+  with open("name.json", "w") as f:
+    json.dump({"servers": res}, f)
+  return res
 
 
 def change_hostname(conn: fabric.Connection, hostname: str):
@@ -44,7 +39,9 @@ def change_hostname(conn: fabric.Connection, hostname: str):
 def sync_time(conn: fabric.Connection):
   """sync time"""
   # 检查两个包是否都已安装
-  timesyncd_installed = conn.run("dpkg -l | grep -q '^ii.*systemd-timesyncd '", warn=True).ok
+  timesyncd_installed = conn.run(
+    "dpkg -l | grep -q '^ii.*systemd-timesyncd '", warn=True
+  ).ok
 
   # 如果任一包未安装，则更新并安装
   if not timesyncd_installed:
@@ -62,8 +59,6 @@ def sync_time(conn: fabric.Connection):
 
 def sync_all_time():
   """sync time for all servers"""
-  master_ip = ["192.168.4.198", "192.168.4.222", "192.168.4.177"]
-  nodes_ip = ["192.168.4.103", "192.168.4.138", "192.168.4.199"]
 
   for ip in master_ip:
     sync_time(get_conn(ip))
