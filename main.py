@@ -62,17 +62,25 @@ def sync_all_time():
   loop_on_all_node(sync_time)
 
 
-def show_time(conn: fabric.Connection):
-  """show time"""
-  conn.run("date")
-
-
 def show_all_time():
   """show time for all servers"""
+  def show_time(conn: fabric.Connection):
+    """show time"""
+  conn.run("date")
+
   loop_on_all_node(show_time)
+
+
+def disable_ufw():
+  """disable ufw"""
+  def disable_ufw(conn: fabric.Connection):
+    conn.sudo("ufw disable")
+
+  loop_on_all_node(disable_ufw)
 
 
 if __name__ == "__main__":
   # set_hostnames()
   # sync_all_time()
-  show_all_time()
+  # show_all_time()
+  disable_ufw()
