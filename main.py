@@ -4,7 +4,7 @@ import json
 
 import fabric
 
-from conf import get_conn, master_ip, nodes_ip
+from conf import get_conn, loop_on_all_node, master_ip, nodes_ip
 
 
 def set_hostnames():
@@ -48,9 +48,9 @@ def sync_time(conn: fabric.Connection):
     conn.sudo("apt-get update")
     conn.sudo("apt-get install -y systemd-timesyncd")
 
-  # 启用并启动 timesyncd 服务
-  conn.sudo("systemctl enable systemd-timesyncd")
-  conn.sudo("systemctl start systemd-timesyncd")
+    # 启用并启动 timesyncd 服务
+    conn.sudo("systemctl enable systemd-timesyncd")
+    conn.sudo("systemctl start systemd-timesyncd")
 
   # 设置时区
   conn.sudo("timedatectl set-timezone Asia/Shanghai")
@@ -59,14 +59,20 @@ def sync_time(conn: fabric.Connection):
 
 def sync_all_time():
   """sync time for all servers"""
+  loop_on_all_node(sync_time)
 
-  for ip in master_ip:
-    sync_time(get_conn(ip))
 
-  for ip in nodes_ip:
-    sync_time(get_conn(ip))
+def show_time(conn: fabric.Connection):
+  """show time"""
+  conn.run("date")
+
+
+def show_all_time():
+  """show time for all servers"""
+  loop_on_all_node(show_time)
 
 
 if __name__ == "__main__":
-  set_hostnames()
+  # set_hostnames()
   # sync_all_time()
+  show_all_time()
