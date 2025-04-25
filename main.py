@@ -13,7 +13,7 @@ def set_hostnames():
   res = []
 
   for ip in master_ip:
-    hostname = f"master-{cnt}"
+    hostname = f"master-{cnt}.lan"
     change_hostname(get_conn(ip), hostname)
     cnt += 1
     res.append(f"{hostname} {ip}")
@@ -21,7 +21,7 @@ def set_hostnames():
   # set node hostname
   cnt = 1
   for ip in nodes_ip:
-    hostname = f"node-{cnt}"
+    hostname = f"node-{cnt}.lan"
     change_hostname(get_conn(ip), hostname)
     cnt += 1
     res.append(f"{hostname} {ip}")
@@ -68,5 +68,5 @@ def sync_all_time():
 
 
 if __name__ == "__main__":
-  # set_hostnames()
-  sync_all_time()
+  set_hostnames()
+  # sync_all_time()
