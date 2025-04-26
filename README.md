@@ -1,6 +1,8 @@
 # k8s-deployment
 
-在内网中使用 sealos 部署 k8s
+在内网中使用 sealos 部署 k8s。
+
+介绍的[博客文章](https://svtter.cn/p/build-a-kubernetes-cluster.md/)
 
 ## 配置脚本
 
